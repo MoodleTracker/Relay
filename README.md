@@ -4,6 +4,9 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+## Setup
+Authentication is handled with JWT. The tokens are signed with some key algorithm or something, well anyway, you have to run [`./generate-jwt-keys.sh`](generate-jwt-keys.sh) before trying to start tracking a user.
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

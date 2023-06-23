@@ -4,11 +4,13 @@ import com.github.moodletracker.client.service.LoginService
 import com.github.moodletracker.client.service.WebService
 import com.github.moodletracker.model.UserToken
 import com.github.moodletracker.repository.UserTokenRepository
+import io.smallrye.jwt.build.Jwt
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.time.Duration
 
 @Path("/auth")
 class AuthResource {
@@ -24,13 +26,12 @@ class AuthResource {
 	@Path("/basic")
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
-	suspend fun loginByBasicAuth(@HeaderParam("X-Username") username: String, @HeaderParam("X-Password") password: String): String {
+	suspend fun loginByBasicAuth(
+		@HeaderParam("X-Username") username: String,
+		@HeaderParam("X-Password") password: String
+	): String {
 		val tokenResponse = loginService.token(username, password)
-		val userToken = UserToken()
-		userToken.userId = webService.getSiteInfo(tokenResponse.token).getInt("userid")
-		userToken.moodleToken = tokenResponse.token
-
-		return userTokenRepository.insert(userToken).map { it.userId.toString() }.awaitSuspending()
+		return login(tokenResponse.token)
 	}
 
 
@@ -38,10 +39,17 @@ class AuthResource {
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	suspend fun loginByToken(@HeaderParam("X-Token") token: String): String {
+		return login(token)
+	}
+
+	suspend fun login(token: String): String {
 		val userToken = UserToken()
 		userToken.userId = webService.getSiteInfo(token).getInt("userid")
 		userToken.moodleToken = token
 
-		return userTokenRepository.insert(userToken).map { it.userId.toString() }.awaitSuspending()
+		val userId = userTokenRepository.insert(userToken).map { it.userId.toString() }.awaitSuspending()
+		return Jwt.subject(userId)
+			.expiresIn(Duration.ofDays(7))
+			.sign()
 	}
 }

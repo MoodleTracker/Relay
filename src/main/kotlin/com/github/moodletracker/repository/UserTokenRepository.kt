@@ -13,7 +13,7 @@ class UserTokenRepository : PanacheRepository<UserToken> {
     @Inject
     private lateinit var sf: Mutiny.SessionFactory
 
-    fun findById(id: String) = find("userId", id).firstResult()
+    fun findById(id: Int): Uni<UserToken> = sf.withTransaction { session -> session.find(UserToken::class.java, id) }
 
     suspend fun insert(userToken: UserToken): Uni<UserToken> = sf.withTransaction { session ->
         session.find(UserToken::class.java, userToken.userId!!)

@@ -8,7 +8,14 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    // this is less than ideal and will be replaced by a proper release soon™
+    maven {
+        url = uri("https://maven.pkg.github.com/MoodleTracker/Protocol")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+        }
+    }
 }
 
 val quarkusPlatformGroupId: String by project
@@ -23,18 +30,17 @@ dependencies {
     implementation("io.quarkus:quarkus-reactive-pg-client")
     implementation("io.quarkus:quarkus-rest-client-reactive")
     implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
-    implementation("io.quarkus:quarkus-kafka-client")
+    implementation("io.quarkus:quarkus-smallrye-reactive-messaging-kafka")
     implementation("io.quarkus:quarkus-scheduler")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-resteasy-reactive")
+    implementation("io.quarkus:quarkus-smallrye-jwt")
+    implementation("io.quarkus:quarkus-smallrye-jwt-build")
+
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
-}
 
-tasks.withType<ProcessResources> {
-    from("config/application.properties") {
-        into("config")
-    }
+    implementation("com.github.moodletracker:protocol:1.0.0")
 }
 
 group = "com.github.moodletracker"
@@ -63,5 +69,4 @@ tasks.withType<Test> {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.compilerArgs.add("-parameters")
 }
