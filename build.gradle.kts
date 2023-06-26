@@ -16,6 +16,12 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
         }
     }
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+        content {
+            includeGroup("io.confluent")
+        }
+    }
 }
 
 val quarkusPlatformGroupId: String by project
@@ -31,6 +37,7 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-client-reactive")
     implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
     implementation("io.quarkus:quarkus-smallrye-reactive-messaging-kafka")
+    implementation("io.quarkus:quarkus-apicurio-registry-avro")
     implementation("io.quarkus:quarkus-scheduler")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-resteasy-reactive")
@@ -41,6 +48,8 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured")
 
     implementation("com.github.moodletracker:protocol:1.0.0")
+    implementation("io.confluent:kafka-protobuf-serializer:7.4.0")
+    implementation("com.google.protobuf:protobuf-java:3.23.0")
 }
 
 group = "com.github.moodletracker"

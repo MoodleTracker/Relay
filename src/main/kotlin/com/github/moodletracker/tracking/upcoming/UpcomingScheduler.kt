@@ -23,6 +23,10 @@ class UpcomingScheduler {
     private lateinit var upcomingReceiver: UpcomingReceiver
 
     suspend fun schedule(userId: Int) {
+        if (scheduler.getScheduledJob("upcoming-$userId") != null) {
+            return
+        }
+
         scheduler
             .newJob("upcoming-$userId")
             .setInterval("1m")
